@@ -534,3 +534,19 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int setpriority(int pid, int prio){
+  struct proc *p;
+
+  if(prio < 0 || prio > 2) return -1;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid && p->state != UNUSED){ //Find pid, not unused
+      p->priority = prio;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+  release(&ptable.lock);
+  return -1; //pid not found
+}
